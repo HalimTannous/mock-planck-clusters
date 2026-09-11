@@ -1,0 +1,14 @@
+# Planck mask/data files (large, download separately, see README)
+catalogs/*.fits
+
+# generated output
+mock_planck_clusters.csv
+mock_planck_clusters.fits
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
