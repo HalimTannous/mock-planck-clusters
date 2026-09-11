@@ -30,7 +30,8 @@ from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  (enables 3d projection on
 from colossus.cosmology import cosmology
 from colossus.lss import mass_function
 from astropy.table import Table
-
+from astropy.coordinates import SkyCoord
+import astropy.units as u
 
 # 1. Cosmology
 cosmology.setCosmology("planck18")
@@ -212,26 +213,24 @@ N_collected = 0
 while N_collected < N_needed:
 
     N_remaining = N_needed - N_collected
-    batch_size = max(
-        10000,
-        int(N_remaining / max(sky_fraction, 0.01) * 1.2),
-    )
+    batch_size = max(10000, int(N_remaining / max(sky_fraction, 0.01) * 1.2))
 
     # uniform on the sphere: uniform RA, uniform in sin(dec)
-    u = rng.uniform(-1.0, 1.0, batch_size)
+    sin_dec = rng.uniform(-1.0, 1.0, batch_size)          # renamed from `u`
     ra_batch = rng.uniform(0.0, 360.0, batch_size)
-    dec_batch = np.degrees(np.arcsin(u))
+    dec_batch = np.degrees(np.arcsin(sin_dec))
 
-    # sky coords -> HEALPix pixel
-    theta_batch = np.radians(90.0 - dec_batch)
-    phi_batch = np.radians(ra_batch)
+    # Planck masks are in Galactic coordinates -> convert candidates before the lookup
+    gal_batch = SkyCoord(ra=ra_batch * u.deg, dec=dec_batch * u.deg, frame="icrs").galactic
+    theta_batch = np.radians(90.0 - gal_batch.b.deg)
+    phi_batch = np.radians(gal_batch.l.deg)
     pix_batch = hp.ang2pix(mask_nside, theta_batch, phi_batch, nest=False)
 
-    # keep the points that land inside the survey mask
     valid_batch = survey_mask[pix_batch]
     ra_inside.append(ra_batch[valid_batch])
     dec_inside.append(dec_batch[valid_batch])
     N_collected += int(np.sum(valid_batch))
+
 
 ra_mock = np.concatenate(ra_inside)[:N_needed]
 dec_mock = np.concatenate(dec_inside)[:N_needed]
