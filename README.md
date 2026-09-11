@@ -89,3 +89,7 @@ Key parameters (top of the script):
   `dN/dlnM500` (model vs mock), cumulative `N(>M500)` (model vs mock), a 2D
   map and a 3D surface of `dN/(dz dlnM500)`, and sky distributions
   (Cartesian and Mollweide).
+
+## License
+
+[MIT](LICENSE)
