@@ -355,8 +355,11 @@ hp.mollview(
     cbar=False, cmap="Greys", min=0, max=1,
 )
 hp.graticule(dpar=30, dmer=30, alpha=0.3)
-theta = np.radians(90.0 - mock_catalogue["DEC"].values)
-phi = np.radians(mock_catalogue["RA"].values)
+
+gal_mock = SkyCoord(ra=mock_catalogue["RA"].values * u.deg,
+                     dec=mock_catalogue["DEC"].values * u.deg, frame="icrs").galactic
+theta = np.radians(90.0 - gal_mock.b.deg)
+phi = np.radians(gal_mock.l.deg)
 hp.projscatter(theta, phi, s=1, alpha=0.2, color="C0")
 plt.show()
 
